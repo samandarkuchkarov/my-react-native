@@ -36,6 +36,9 @@ import com.facebook.react.uimanager.common.ViewUtil;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.LinkedBlockingQueue;
+import android.util.Log;
+import android.os.Build;
 
 /**
  * Module that exposes interface for creating and managing animated nodes on the "native" side.
@@ -105,13 +108,19 @@ public class NativeAnimatedModule extends NativeAnimatedModuleSpec
   @NonNull private final GuardedFrameCallback mAnimatedFrameCallback;
   private final ReactChoreographer mReactChoreographer;
 
-  @NonNull
-  private final ConcurrentLinkedQueue<UIThreadOperation> mOperations =
-      new ConcurrentLinkedQueue<>();
+  private final ConcurrentLinkedQueue<UIThreadOperation> mOperations;
+  if (Build.VERSION.RELEASE.equals("12")) {
+    mOperations = new LinkedBlockingQueue<>();
+  } else {
+    mOperations = new ConcurrentLinkedQueue<>();
+  }
 
-  @NonNull
-  private final ConcurrentLinkedQueue<UIThreadOperation> mPreOperations =
-      new ConcurrentLinkedQueue<>();
+  private final ConcurrentLinkedQueue<UIThreadOperation> mPreOperations;
+  if (Build.VERSION.RELEASE.equals("12")) {
+    mPreOperations = new LinkedBlockingQueue<>();
+  } else {
+    mPreOperations = new ConcurrentLinkedQueue<>();
+  }
 
   private final AtomicReference<NativeAnimatedNodesManager> mNodesManager = new AtomicReference<>();
 
